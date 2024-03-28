@@ -1,58 +1,84 @@
 <template>
-  <div class="hello">
-    <h1>{{ msg }}</h1>
-    <p>
-      For a guide and recipes on how to configure / customize this project,<br>
-      check out the
-      <a href="https://cli.vuejs.org" target="_blank" rel="noopener">vue-cli documentation</a>.
-    </p>
-    <h3>Installed CLI Plugins</h3>
-    <ul>
-      <li><a href="https://github.com/vuejs/vue-cli/tree/dev/packages/%40vue/cli-plugin-babel" target="_blank" rel="noopener">babel</a></li>
-      <li><a href="https://github.com/vuejs/vue-cli/tree/dev/packages/%40vue/cli-plugin-eslint" target="_blank" rel="noopener">eslint</a></li>
-    </ul>
-    <h3>Essential Links</h3>
-    <ul>
-      <li><a href="https://vuejs.org" target="_blank" rel="noopener">Core Docs</a></li>
-      <li><a href="https://forum.vuejs.org" target="_blank" rel="noopener">Forum</a></li>
-      <li><a href="https://chat.vuejs.org" target="_blank" rel="noopener">Community Chat</a></li>
-      <li><a href="https://twitter.com/vuejs" target="_blank" rel="noopener">Twitter</a></li>
-      <li><a href="https://news.vuejs.org" target="_blank" rel="noopener">News</a></li>
-    </ul>
-    <h3>Ecosystem</h3>
-    <ul>
-      <li><a href="https://router.vuejs.org" target="_blank" rel="noopener">vue-router</a></li>
-      <li><a href="https://vuex.vuejs.org" target="_blank" rel="noopener">vuex</a></li>
-      <li><a href="https://github.com/vuejs/vue-devtools#vue-devtools" target="_blank" rel="noopener">vue-devtools</a></li>
-      <li><a href="https://vue-loader.vuejs.org" target="_blank" rel="noopener">vue-loader</a></li>
-      <li><a href="https://github.com/vuejs/awesome-vue" target="_blank" rel="noopener">awesome-vue</a></li>
-    </ul>
+  <div>
+    <h1>Text Summarization</h1>
+
+    <!-- Create a form to get text from the user -->
+    <form @submit.prevent="fetchData">
+      <label for="text">Nhập văn bản:</label><br>
+      <textarea id="text" name="text" rows="9" cols="80" v-model="text"></textarea><br>
+      <label for="output_sentences">Số câu tóm tắt:</label><br>
+      <input type="number" id="output_sentences" name="output_sentences" v-model="output_sentences"><br>
+      <button type="submit">Summarize</button>
+    </form>
+
+    <div v-if="loading">Loading...</div>
+
+    <div v-if="error" style="color: red;">{{ error }}</div>
+
+    <div v-if="data">
+      <h2>Tóm tắt:</h2>
+
+        <p style="
+    border: green 5px solid;
+    text-align: justify;
+    padding: 5px;
+">{{ data.microsoft.result }}</p>
+
+    </div>
   </div>
 </template>
 
 <script>
+import axios from 'axios';
+
 export default {
-  name: 'HelloWorld',
-  props: {
-    msg: String
-  }
-}
+  data() {
+    return {
+      text: '',  // Added to bind to the input field
+      output_sentences: 3,  // Set a default value or adjust as needed
+      data: null,  // Changed to null for better checking
+      loading: false,
+      error: null,
+    };
+  },
+  methods: {
+    fetchData() {
+      this.loading = true;
+      this.error = null;
+      const headers = {
+        'Content-Type': 'application/json',
+        'accept': 'application/json',
+        'Authorization': 'Bearer ' + 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiY2NhNDVkYTgtYTY0NS00MDk0LTkxZTUtNDQ4ZmY1ZjVmNTkzIiwidHlwZSI6ImFwaV90b2tlbiJ9.J14YIoOnbQ9I2wDjI3BfYZZ8MLeHwo6YUp9sqpVr3QY',  // Replace with your actual token
+      };
+
+      // Set request body using the data property
+      const requestBody = {
+        text: this.text,
+        providers: 'microsoft',
+        language: 'vi',
+        response_as_dict: 1,
+        attributes_as_list: 0,
+        show_original_response: 0,
+        settings: {},
+        output_sentences: this.output_sentences,
+      };
+
+      // Make the HTTP request
+      axios.post('https://api.edenai.run/v2/text/summarize', requestBody, { headers })
+        .then(response => {
+          this.data = response.data;
+          console.log(response.data);
+          this.loading = false;
+        })
+        .catch(error => {
+          this.error = 'Error fetching data: ' + error;
+          this.loading = false;
+        });
+    },
+  },
+};
 </script>
 
-<!-- Add "scoped" attribute to limit CSS to this component only -->
-<style scoped>
-h3 {
-  margin: 40px 0 0;
-}
-ul {
-  list-style-type: none;
-  padding: 0;
-}
-li {
-  display: inline-block;
-  margin: 0 10px;
-}
-a {
-  color: #42b983;
-}
+<style>
+/* Add your styles here if needed */
 </style>
