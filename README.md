@@ -1,4 +1,4 @@
-# vue-api-demo
+# Text summarization
 
 ## Project setup
 ```

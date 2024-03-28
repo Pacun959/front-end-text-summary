@@ -6,9 +6,9 @@
     <form @submit.prevent="fetchData">
       <label for="text">Nhập văn bản:</label><br>
       <textarea id="text" name="text" rows="9" cols="80" v-model="text"></textarea><br>
-      <label for="output_sentences">Số câu tóm tắt:</label><br>
+      <label for="output_sentences">Số từ tối đa:</label><br>
       <input type="number" id="output_sentences" name="output_sentences" v-model="output_sentences"><br>
-      <button type="submit">Summarize</button>
+      <button type="submit">Tóm tắt</button>
     </form>
 
     <div v-if="loading">Loading...</div>
@@ -35,7 +35,7 @@ export default {
   data() {
     return {
       text: '',  // Added to bind to the input field
-      output_sentences: 3,  // Set a default value or adjust as needed
+      output_sentences: 40,  // Set a default value or adjust as needed
       data: null,  // Changed to null for better checking
       loading: false,
       error: null,
